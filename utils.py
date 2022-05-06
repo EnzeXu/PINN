@@ -69,6 +69,7 @@ def draw_two_dimension(
     if show_flag:
         plt.show()
     plt.clf()
+    plt.close()
 
 
 if __name__ == "__main__":
