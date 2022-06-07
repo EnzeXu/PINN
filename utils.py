@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def draw_two_dimension(
@@ -49,7 +50,7 @@ def draw_two_dimension(
     :param fig_size: (tuple) figure size. e.g., (8, 6)
     :return:
     """
-    assert len(y_lists[0]) == len(x_list), "Dimension of y should be same to that of x"
+    assert len(list(y_lists[0])) == len(list(x_list)), "Dimension of y should be same to that of x"
     assert len(y_lists) == len(line_style_list) == len(color_list), "number of lines should be fixed"
     y_count = len(y_lists)
     plt.figure(figsize=fig_size)
@@ -143,6 +144,46 @@ def draw_two_dimension_different_x(
     plt.clf()
     plt.close()
 
+
+def smooth_conv(data, kernel_size: int = 10):
+    kernel = np.ones(kernel_size) / kernel_size
+    return np.convolve(data, kernel, mode='same')
+
+
+def draw_multiple_loss(loss_path_list, color_list, line_style_list, legend_list, fig_title, start_index, end_index, threshold=None, smooth_kernel_size=1, marker_size=0, line_width=1, fig_size=(8, 6)):
+    # line_n = len(loss_path_list)
+    assert 2 * len(loss_path_list) == len(color_list) == len(line_style_list) == len(legend_list), "Note that for each loss in loss_path_list, this function will generate an original version and a smoothed version. So please give the color_list, line_style_list, legend_list for all of them"
+    x_list = range(start_index, end_index)
+    y_lists = [np.load(one_path) for one_path in loss_path_list]
+    y_lists_smooth = [smooth_conv(item, smooth_kernel_size) for item in y_lists]
+    for i, item in enumerate(y_lists):
+        print("{}: {}".format(legend_list[i], np.mean(item[start_index: end_index])))
+        if threshold:
+            match_index_list = np.where(y_lists_smooth[i] <= threshold)
+            if len(match_index_list[0]) == 0:
+                print("No index of epoch matches condition '< {}'!".format(threshold))
+            else:
+                print("Epoch {} is the first value matches condition '< {}'!".format(match_index_list[0][0], threshold))
+    y_lists = [item[x_list] for item in y_lists]
+    y_lists_smooth = [item[x_list] for item in y_lists_smooth]
+    draw_two_dimension(
+        y_lists=y_lists + y_lists_smooth,
+        x_list=x_list,
+        color_list=color_list,
+        legend_list=legend_list,
+        line_style_list=line_style_list,
+        fig_title=fig_title,
+        fig_size=fig_size,
+        fig_x_label="epoch",
+        fig_y_label="loss",
+        marker_size=marker_size,
+        line_width=line_width,
+        show_flag=True,
+        save_flag=False,
+        save_path=None
+    )
+
+
 if __name__ == "__main__":
     # x_list = range(10000)
     # y_lists = [
@@ -168,22 +209,48 @@ if __name__ == "__main__":
     #     save_flag=False,
     #     save_path=None
     # )
-    import numpy as np
-    x1 = [i * 0.01 for i in range(1000)]
-    y1 = [np.sin(i * 0.01) for i in range(1000)]
-    x2 = [i * 0.01 for i in range(500)]
-    y2 = [np.cos(i * 0.01) for i in range(500)]
-    x3 = []
-    y3 = []
-    draw_two_dimension_different_x(
-        y_lists=[y1, y2, y3],
-        x_lists=[x1, x2, x3],
-        color_list=["b", "r", "y"],
-        legend_list=["sin", "cos", "balabala"],
-        line_style_list=["dotted", "dotted", "dotted"],
-        fig_title="Anonymous",
-        fig_size=(8, 6),
-        show_flag=True,
-        save_flag=False,
-        save_path=None
-    )
+    # import numpy as np
+    # x1 = [i * 0.01 for i in range(1000)]
+    # y1 = [np.sin(i * 0.01) for i in range(1000)]
+    # x2 = [i * 0.01 for i in range(500)]
+    # y2 = [np.cos(i * 0.01) for i in range(500)]
+    # x3 = []
+    # y3 = []
+    # draw_two_dimension_different_x(
+    #     y_lists=[y1, y2, y3],
+    #     x_lists=[x1, x2, x3],
+    #     color_list=["b", "r", "y"],
+    #     legend_list=["sin", "cos", "balabala"],
+    #     line_style_list=["dotted", "dotted", "dotted"],
+    #     fig_title="Anonymous",
+    #     fig_size=(8, 6),
+    #     show_flag=True,
+    #     save_flag=False,
+    #     save_path=None
+    # )
+
+    # data = np.load("loss/SimpleNetworkSIRAges_Truth_100000_1000_0.01_2022-06-05-20-54-55_loss_100000.npy")
+    # print(type(data))
+    # print(data)
+    # data_10 = smooth_conv(data, 500)
+    # print(data_10)
+    # data_20 = smooth_conv(data, 1000)
+    # print(data_20)
+    # start_index = 40000
+    # end_index = 100000
+    #
+    # draw_two_dimension(
+    #     y_lists=[data[start_index: end_index], data_10[start_index: end_index], data_20[start_index: end_index]],
+    #     x_list=range(start_index, end_index),
+    #     color_list=["r", "g", "b"],
+    #     legend_list=["None", "10", "20"],
+    #     line_style_list=["solid"] * 3,
+    #     fig_title="Anonymous",
+    #     fig_size=(8, 6),
+    #     show_flag=True,
+    #     save_flag=False,
+    #     save_path=None
+    # )
+
+    a = np.asarray([1,2,4,5,7, 0])
+    print(np.where(a > 3))
