@@ -3,27 +3,31 @@ import numpy as np
 
 
 def draw_two_dimension(
-        y_lists,
-        x_list,
-        color_list,
-        line_style_list,
-        legend_list=None,
-        legend_fontsize=15,
-        fig_title=None,
-        fig_x_label="time",
-        fig_y_label="val",
-        show_flag=True,
-        save_flag=False,
-        save_path=None,
-        save_dpi=300,
-        fig_title_size=20,
-        fig_grid=False,
-        marker_size=0,
-        line_width=2,
-        x_label_size=15,
-        y_label_size=15,
-        number_label_size=15,
-        fig_size=(8, 6)
+    y_lists,
+    x_list,
+    color_list,
+    line_style_list,
+    legend_list=None,
+    legend_fontsize=15,
+    fig_title=None,
+    fig_x_label="time",
+    fig_y_label="val",
+    show_flag=True,
+    save_flag=False,
+    save_path=None,
+    save_dpi=300,
+    fig_title_size=20,
+    fig_grid=False,
+    marker_size=0,
+    line_width=2,
+    x_label_size=15,
+    y_label_size=15,
+    number_label_size=15,
+    fig_size=(8, 6),
+    x_ticks_set_flag=False,
+    x_ticks=None,
+    y_ticks_set_flag=False,
+    y_ticks=None,
 ) -> None:
     """
     Draw a 2D plot of several lines
@@ -48,6 +52,10 @@ def draw_two_dimension(
     :param y_label_size: (float) y label size. e.g., 15
     :param number_label_size: (float) number label size. e.g., 15
     :param fig_size: (tuple) figure size. e.g., (8, 6)
+    :param x_ticks: (list) list of x_ticks. e.g., range(2, 21, 1)
+    :param x_ticks_set_flag: (boolean) whether to set x_ticks. e.g., False
+    :param y_ticks: (list) list of y_ticks. e.g., range(2, 21, 1)
+    :param y_ticks_set_flag: (boolean) whether to set y_ticks. e.g., False
     :return:
     """
     assert len(list(y_lists[0])) == len(list(x_list)), "Dimension of y should be same to that of x"
@@ -58,6 +66,10 @@ def draw_two_dimension(
         plt.plot(x_list, y_lists[i], markersize=marker_size, linewidth=line_width, c=color_list[i], linestyle=line_style_list[i])
     plt.xlabel(fig_x_label, fontsize=x_label_size)
     plt.ylabel(fig_y_label, fontsize=y_label_size)
+    if x_ticks_set_flag:
+        plt.xticks(x_ticks)
+    if y_ticks_set_flag:
+        plt.yticks(y_ticks)
     plt.tick_params(labelsize=number_label_size)
     if legend_list:
         plt.legend(legend_list, fontsize=legend_fontsize)
@@ -74,27 +86,31 @@ def draw_two_dimension(
 
 
 def draw_two_dimension_different_x(
-        y_lists,
-        x_lists,
-        color_list,
-        line_style_list,
-        legend_list=None,
-        legend_fontsize=15,
-        fig_title=None,
-        fig_x_label="time",
-        fig_y_label="val",
-        show_flag=True,
-        save_flag=False,
-        save_path=None,
-        save_dpi=300,
-        fig_title_size=20,
-        fig_grid=False,
-        marker_size=0,
-        line_width=2,
-        x_label_size=15,
-        y_label_size=15,
-        number_label_size=15,
-        fig_size=(8, 6)
+    y_lists,
+    x_lists,
+    color_list,
+    line_style_list,
+    legend_list=None,
+    legend_fontsize=15,
+    fig_title=None,
+    fig_x_label="time",
+    fig_y_label="val",
+    show_flag=True,
+    save_flag=False,
+    save_path=None,
+    save_dpi=300,
+    fig_title_size=20,
+    fig_grid=False,
+    marker_size=0,
+    line_width=2,
+    x_label_size=15,
+    y_label_size=15,
+    number_label_size=15,
+    fig_size=(8, 6),
+    x_ticks_set_flag=False,
+    x_ticks=None,
+    y_ticks_set_flag=False,
+    y_ticks=None,
 ) -> None:
     """
     Draw a 2D plot of several lines
@@ -119,6 +135,10 @@ def draw_two_dimension_different_x(
     :param y_label_size: (float) y label size. e.g., 15
     :param number_label_size: (float) number label size. e.g., 15
     :param fig_size: (tuple) figure size. e.g., (8, 6)
+    :param x_ticks: (list) list of x_ticks. e.g., range(2, 21, 1)
+    :param x_ticks_set_flag: (boolean) whether to set x_ticks. e.g., False
+    :param y_ticks: (list) list of y_ticks. e.g., range(2, 21, 1)
+    :param y_ticks_set_flag: (boolean) whether to set y_ticks. e.g., False
     :return:
     """
     assert len(y_lists) == len(line_style_list) == len(color_list), "number of lines should be fixed"
@@ -130,6 +150,10 @@ def draw_two_dimension_different_x(
         plt.plot(x_lists[i], y_lists[i], markersize=marker_size, linewidth=line_width, c=color_list[i], linestyle=line_style_list[i])
     plt.xlabel(fig_x_label, fontsize=x_label_size)
     plt.ylabel(fig_y_label, fontsize=y_label_size)
+    if x_ticks_set_flag:
+        plt.xticks(x_ticks)
+    if y_ticks_set_flag:
+        plt.yticks(y_ticks)
     plt.tick_params(labelsize=number_label_size)
     if legend_list:
         plt.legend(legend_list, fontsize=legend_fontsize)
@@ -150,7 +174,7 @@ def smooth_conv(data, kernel_size: int = 10):
     return np.convolve(data, kernel, mode='same')
 
 
-def draw_multiple_loss(loss_path_list, color_list, line_style_list, legend_list, fig_title, start_index, end_index, threshold=None, smooth_kernel_size=1, marker_size=0, line_width=1, fig_size=(8, 6)):
+def draw_multiple_loss(loss_path_list, color_list, line_style_list, legend_list, fig_title, start_index, end_index, threshold=None, smooth_kernel_size=1, marker_size=0, line_width=1, fig_size=(8, 6), x_ticks_set_flag=False, x_ticks=None, y_ticks_set_flag=False, y_ticks=None):
     # line_n = len(loss_path_list)
     assert 2 * len(loss_path_list) == len(color_list) == len(line_style_list) == len(legend_list), "Note that for each loss in loss_path_list, this function will generate an original version and a smoothed version. So please give the color_list, line_style_list, legend_list for all of them"
     x_list = range(start_index, end_index)
@@ -176,6 +200,10 @@ def draw_multiple_loss(loss_path_list, color_list, line_style_list, legend_list,
         fig_size=fig_size,
         fig_x_label="epoch",
         fig_y_label="loss",
+        x_ticks_set_flag=x_ticks_set_flag,
+        y_ticks_set_flag=y_ticks_set_flag,
+        x_ticks=x_ticks,
+        y_ticks=y_ticks,
         marker_size=marker_size,
         line_width=line_width,
         show_flag=True,
