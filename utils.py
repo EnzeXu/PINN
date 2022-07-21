@@ -179,6 +179,7 @@ def draw_multiple_loss(loss_path_list, color_list, line_style_list, legend_list,
     assert 2 * len(loss_path_list) == len(color_list) == len(line_style_list) == len(legend_list), "Note that for each loss in loss_path_list, this function will generate an original version and a smoothed version. So please give the color_list, line_style_list, legend_list for all of them"
     x_list = range(start_index, end_index)
     y_lists = [np.load(one_path) for one_path in loss_path_list]
+    print("length:", [len(item) for item in y_lists])
     y_lists_smooth = [smooth_conv(item, smooth_kernel_size) for item in y_lists]
     for i, item in enumerate(y_lists):
         print("{}: {}".format(legend_list[i], np.mean(item[start_index: end_index])))
