@@ -8,6 +8,9 @@ def draw_two_dimension(
     color_list,
     line_style_list,
     legend_list=None,
+    legend_location="auto",
+    legend_bbox_to_anchor=(0.515, 1.11),
+    legend_ncol=3,
     legend_fontsize=15,
     fig_title=None,
     fig_x_label="time",
@@ -28,6 +31,7 @@ def draw_two_dimension(
     x_ticks=None,
     y_ticks_set_flag=False,
     y_ticks=None,
+    tight_layout_flag=True,
 ) -> None:
     """
     Draw a 2D plot of several lines
@@ -72,11 +76,16 @@ def draw_two_dimension(
         plt.yticks(y_ticks)
     plt.tick_params(labelsize=number_label_size)
     if legend_list:
-        plt.legend(legend_list, fontsize=legend_fontsize)
+        if legend_location == "fixed":
+            plt.legend(legend_list, fontsize=legend_fontsize, bbox_to_anchor=legend_bbox_to_anchor, fancybox=True, ncol=legend_ncol)
+        else:
+            plt.legend(legend_list, fontsize=legend_fontsize)
     if fig_title:
         plt.title(fig_title, fontsize=fig_title_size)
     if fig_grid:
         plt.grid(True)
+    if tight_layout_flag:
+        plt.tight_layout()
     if save_flag:
         plt.savefig(save_path, dpi=save_dpi)
     if show_flag:
@@ -91,6 +100,9 @@ def draw_two_dimension_different_x(
     color_list,
     line_style_list,
     legend_list=None,
+    legend_location="auto",
+    legend_bbox_to_anchor=(0.515, 1.11),
+    legend_ncol=3,
     legend_fontsize=15,
     fig_title=None,
     fig_x_label="time",
@@ -111,6 +123,7 @@ def draw_two_dimension_different_x(
     x_ticks=None,
     y_ticks_set_flag=False,
     y_ticks=None,
+    tight_layout_flag=True
 ) -> None:
     """
     Draw a 2D plot of several lines
@@ -156,11 +169,16 @@ def draw_two_dimension_different_x(
         plt.yticks(y_ticks)
     plt.tick_params(labelsize=number_label_size)
     if legend_list:
-        plt.legend(legend_list, fontsize=legend_fontsize)
+        if legend_location == "fixed":
+            plt.legend(legend_list, fontsize=legend_fontsize, bbox_to_anchor=legend_bbox_to_anchor, fancybox=True, ncol=legend_ncol)
+        else:
+            plt.legend(legend_list, fontsize=legend_fontsize)
     if fig_title:
         plt.title(fig_title, fontsize=fig_title_size)
     if fig_grid:
         plt.grid(True)
+    if tight_layout_flag:
+        plt.tight_layout()
     if save_flag:
         plt.savefig(save_path, dpi=save_dpi)
     if show_flag:
@@ -174,9 +192,36 @@ def smooth_conv(data, kernel_size: int = 10):
     return np.convolve(data, kernel, mode='same')
 
 
-def draw_multiple_loss(loss_path_list, color_list, line_style_list, legend_list, fig_title, start_index, end_index, threshold=None, smooth_kernel_size=1, marker_size=0, line_width=1, fig_size=(8, 6), x_ticks_set_flag=False, x_ticks=None, y_ticks_set_flag=False, y_ticks=None):
+def draw_multiple_loss(
+        loss_path_list,
+        color_list,
+        line_style_list,
+        legend_list,
+        fig_title,
+        start_index,
+        end_index,
+        threshold=None,
+        smooth_kernel_size=1,
+        marker_size=0,
+        line_width=1,
+        fig_size=(8, 6),
+        x_ticks_set_flag=False,
+        x_ticks=None,
+        y_ticks_set_flag=False,
+        y_ticks=None,
+        show_flag=True,
+        save_flag=False,
+        save_path=None,
+        only_original_flag=False,
+        fig_x_label="epoch",
+        fig_y_label="loss",
+        legend_location="auto",
+        legend_bbox_to_anchor=(0.515, 1.11),
+        legend_ncol=3,
+        tight_layout_flag=True
+):
     # line_n = len(loss_path_list)
-    assert 2 * len(loss_path_list) == len(color_list) == len(line_style_list) == len(legend_list), "Note that for each loss in loss_path_list, this function will generate an original version and a smoothed version. So please give the color_list, line_style_list, legend_list for all of them"
+    assert (len(loss_path_list) if only_original_flag else 2 * len(loss_path_list)) == len(color_list) == len(line_style_list) == len(legend_list), "Note that for each loss in loss_path_list, this function will generate an original version and a smoothed version. So please give the color_list, line_style_list, legend_list for all of them"
     x_list = range(start_index, end_index)
     y_lists = [np.load(one_path) for one_path in loss_path_list]
     print("length:", [len(item) for item in y_lists])
@@ -192,25 +237,103 @@ def draw_multiple_loss(loss_path_list, color_list, line_style_list, legend_list,
     y_lists = [item[x_list] for item in y_lists]
     y_lists_smooth = [item[x_list] for item in y_lists_smooth]
     draw_two_dimension(
-        y_lists=y_lists + y_lists_smooth,
+        y_lists=y_lists if only_original_flag else y_lists + y_lists_smooth,
         x_list=x_list,
         color_list=color_list,
         legend_list=legend_list,
+        legend_location=legend_location,
+        legend_bbox_to_anchor=legend_bbox_to_anchor,
+        legend_ncol=legend_ncol,
         line_style_list=line_style_list,
         fig_title=fig_title,
         fig_size=fig_size,
-        fig_x_label="epoch",
-        fig_y_label="loss",
+        fig_x_label=fig_x_label,
+        fig_y_label=fig_y_label,
         x_ticks_set_flag=x_ticks_set_flag,
         y_ticks_set_flag=y_ticks_set_flag,
         x_ticks=x_ticks,
         y_ticks=y_ticks,
         marker_size=marker_size,
         line_width=line_width,
-        show_flag=True,
-        save_flag=False,
-        save_path=None
+        show_flag=show_flag,
+        save_flag=save_flag,
+        save_path=save_path,
+        tight_layout_flag=tight_layout_flag
     )
+
+
+class MultiSubplotDraw:
+    def __init__(self, row, col, fig_size=(8, 6), show_flag=True, save_flag=False, save_path=None, save_dpi=300, tight_layout_flag=False):
+        self.row = row
+        self.col = col
+        self.subplot_index = 0
+        self.show_flag = show_flag
+        self.save_flag = save_flag
+        self.save_path = save_path
+        self.save_dpi = save_dpi
+        self.tight_layout_flag = tight_layout_flag
+        self.fig = plt.figure(figsize=fig_size)
+
+    def draw(self, ):
+        if self.tight_layout_flag:
+            plt.tight_layout()
+        if self.save_flag:
+            plt.savefig(self.save_path, dpi=self.save_dpi)
+        if self.show_flag:
+            plt.show()
+        plt.clf()
+        plt.close()
+
+    def add_subplot(
+            self,
+            y_lists,
+            x_list,
+            color_list,
+            line_style_list,
+            legend_list=None,
+            legend_location="auto",
+            legend_bbox_to_anchor=(0.515, 1.11),
+            legend_ncol=3,
+            legend_fontsize=15,
+            fig_title=None,
+            fig_x_label="time",
+            fig_y_label="val",
+            fig_title_size=20,
+            fig_grid=False,
+            marker_size=0,
+            line_width=2,
+            x_label_size=15,
+            y_label_size=15,
+            number_label_size=15,
+            x_ticks_set_flag=False,
+            x_ticks=None,
+            y_ticks_set_flag=False,
+            y_ticks=None,
+    ) -> None:
+        assert len(list(y_lists[0])) == len(list(x_list)), "Dimension of y should be same to that of x"
+        assert len(y_lists) == len(line_style_list) == len(color_list), "number of lines should be fixed"
+        y_count = len(y_lists)
+        self.subplot_index += 1
+        ax = self.fig.add_subplot(self.row, self.col, self.subplot_index)
+        for i in range(y_count):
+            ax.plot(x_list, y_lists[i], markersize=marker_size, linewidth=line_width, c=color_list[i], linestyle=line_style_list[i])
+        ax.set_xlabel(fig_x_label, fontsize=x_label_size)
+        ax.set_ylabel(fig_y_label, fontsize=y_label_size)
+        if x_ticks_set_flag:
+            ax.set_xticks(x_ticks)
+        if y_ticks_set_flag:
+            ax.set_yticks(y_ticks)
+        if legend_list:
+            if legend_location == "fixed":
+                ax.legend(legend_list, fontsize=legend_fontsize, bbox_to_anchor=legend_bbox_to_anchor, fancybox=True,
+                           ncol=legend_ncol)
+            else:
+                ax.legend(legend_list, fontsize=legend_fontsize)
+        if fig_title:
+            ax.set_title(fig_title, fontsize=fig_title_size)
+        if fig_grid:
+            ax.grid(True)
+        plt.tick_params(labelsize=number_label_size)
 
 
 if __name__ == "__main__":
@@ -220,24 +343,105 @@ if __name__ == "__main__":
     #     [-0.005 * i - 30 for i in x_list],
     #     [0.008 * i - 10 for i in x_list],
     #     [-0.006 * i - 20 for i in x_list],
-    #     [-0.001 * i - 5 for i in x_list]
+    #     [-0.001 * i - 5 for i in x_list],
+    #     [-0.003 * i - 1 for i in x_list]
     # ]
-    # color_list = ["red", "blue", "green", "cyan", "black"]
-    # line_style_list = ["dashed", "dotted", "dashdot", "dashdot", "dashdot"]
-    # legend_list = ["red line", "blue line", "green line", "cyan line", "black line"]
-    #
+    # color_list = ["red", "blue", "green", "cyan", "black", "purple"]
+    # line_style_list = ["dashed", "dotted", "dashdot", "dashdot", "dashdot", "dashdot"]
+    # legend_list = ["red line", "blue line", "green line", "cyan line", "black line", "purple line"]
+    # #
     # draw_two_dimension(
     #     y_lists=y_lists,
     #     x_list=x_list,
     #     color_list=color_list,
     #     legend_list=legend_list,
     #     line_style_list=line_style_list,
-    #     fig_title="Anonymous",
+    #     fig_title=None,
     #     fig_size=(8, 6),
     #     show_flag=True,
     #     save_flag=False,
-    #     save_path=None
+    #     save_path=None,
+    #     legend_location="fixed",
+    #     legend_ncol=3,
+    #     legend_bbox_to_anchor=(0.86, 1.19),
+    #     tight_layout_flag=True
     # )
+
+    x_list = range(10000)
+    y_lists = [
+        [0.005 * i + 10 for i in x_list],
+        [-0.005 * i - 30 for i in x_list],
+        # [0.008 * i - 10 for i in x_list],
+        # [-0.006 * i - 20 for i in x_list],
+        # [-0.001 * i - 5 for i in x_list],
+        # [-0.003 * i - 1 for i in x_list]
+    ]
+
+    m = MultiSubplotDraw(row=3, col=1, tight_layout_flag=True)
+    m.add_subplot(
+        y_lists=y_lists,
+        x_list=x_list,
+        color_list=["r", "b"],
+        legend_list=["111", "222"],
+        line_style_list=["dashed", "solid"],
+        fig_title="hello world")
+
+    m.add_subplot(
+        y_lists=y_lists,
+        x_list=x_list,
+        color_list=["yellow", "b"],
+        legend_list=["111", "222"],
+        line_style_list=["dashed", "solid"],
+        fig_title="hello world")
+
+    m.add_subplot(
+        y_lists=y_lists,
+        x_list=x_list,
+        color_list=["g", "grey"],
+        legend_list=["111", "222"],
+        line_style_list=["dashed", "solid"],
+        fig_title="hello world")
+
+    m.draw()
+    # color_list = ["red", "blue"]#, "green", "cyan", "black", "purple"]
+    # line_style_list = ["dashed", "dotted"]#, "dashdot", "dashdot", "dashdot", "dashdot"]
+    # legend_list = ["red line", "blue line"]#, "green line", "cyan line", "black line", "purple line"]
+    # #
+    # draw_two_dimension(
+    #     y_lists=y_lists,
+    #     x_list=x_list,
+    #     color_list=color_list,
+    #     legend_list=legend_list,
+    #     line_style_list=line_style_list,
+    #     fig_title=None,
+    #     fig_size=(8, 6),
+    #     show_flag=True,
+    #     save_flag=False,
+    #     save_path=None,
+    #     legend_location="fixed",
+    #     legend_ncol=3,
+    #     legend_bbox_to_anchor=(0.515, 1.11),#(0.86, 1.19),
+    #     tight_layout_flag=True
+    # )
+
+    # fig = plt.figure(figsize=(16, 6))
+    # ax = fig.add_subplot(1, 3, 1)
+    # ax.plot(x_list, [0.005 * i + 10 for i in x_list])
+    # ax.legend(["aaa"])
+    # ax.set_xlabel("hello", fontsize=20)
+    # ax.set_xticks(range(0, 10001, 2000))
+    # ax.grid(True)
+    #
+    # ax = fig.add_subplot(1, 3, 2)
+    # ax.plot(x_list, [-0.005 * i - 30 for i in x_list])
+    #
+    # ax = fig.add_subplot(1, 3, 3)
+    # ax.plot(x_list, [-0.005 * i - 30 for i in x_list])
+    #
+    # plt.tick_params(labelsize=20)
+    # plt.show()
+    # plt.close()
+
     # import numpy as np
     # x1 = [i * 0.01 for i in range(1000)]
     # y1 = [np.sin(i * 0.01) for i in range(1000)]
@@ -281,5 +485,5 @@ if __name__ == "__main__":
     #     save_path=None
     # )
 
-    a = np.asarray([1,2,4,5,7, 0])
-    print(np.where(a > 3))
+    # a = np.asarray([1,2,4,5,7, 0])
+    # print(np.where(a > 3))
